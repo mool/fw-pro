@@ -5,7 +5,13 @@ source firewall.conf
 root_nameservers="B C D E F I J K L M"
 
 pong=0
-if (ping -c1 -W2 $letter.root-servers.net &>/dev/null); then 
+for letter in $root_nameservers; do  
+  if (ping -c1 -W2 $letter.root-servers.net &>/dev/null); then 
+    pong=1
+    break
+  fi
+done
+if [ pong == 1 ]; then
   exit 1
 else
   for ((i=1;i<=${#gw[@]};i++)); do
