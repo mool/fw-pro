@@ -1,8 +1,7 @@
 #!/bin/bash
 
 test "$1" == "debug" && set -x
-test "$1" == "show"  && iptables() { echo iptables "$@"; } && ip() { echo ip "$@"; } && tc() { echo tc "$@"; } && ifconfig() { echo ifconfig "$@"; }
-test "$1" == "loadvars" && return 0
+test "$1" == "show"  && iptables() { echo iptables "$@"; } && ip() { echo ip "$@"; } 
 
 source firewall.conf
 
@@ -21,7 +20,7 @@ for ((i=1;i<=${#gw[@]};i++)); do
 done
 echo -n "* Setting default route: "
 ip ro del default                                                                                                          
-ip ro add default via table enalce$default
+ip ro add default via ${gw[$default]}
 echo "done"
 
 echo "Setting firewall rules..."
@@ -54,6 +53,7 @@ for ((i=1;i<=${#lan_iface[@]};i++)); do
   iptables -A FORWARD -i ${lan_iface[$i]} -j ACCEPT
 done
 iptables -A INPUT -i lo -j ACCEPT
+iptables -A INPUT -i tun+ -j ACCEPT
 # Acepto ICMP
 iptables -A INPUT -p icmp -j ACCEPT
 # No permito conexiones a los demas puertos desde inet
