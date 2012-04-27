@@ -11,9 +11,7 @@ for letter in $root_nameservers; do
     break
   fi
 done
-if [ pong == 1 ]; then
-  exit 1
-else
+if [ pong == 0 ]; then
   for ((i=1;i<=${#gw[@]};i++)); do
     for letter in $root_nameservers; do  
       if (ping -c1 -W2 $letter.root-servers.net -I ${gw_ip[$i]} &>/dev/null); then  
@@ -27,4 +25,6 @@ else
   done
 
   echo -e "Subject: Cambio de Enlace en $(hostname -f)\n$(date) Se conmuto el enlace a ${gw_name[$i]}" | sendmail $mail
+else
+  exit 1
 fi
