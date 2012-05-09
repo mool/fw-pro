@@ -27,10 +27,11 @@ for ((i=1;i<=${#inet_gw[@]};i++)); do
 done
 echo -n " * Setting default route: "
 ip route del default table main 2>/dev/null
+ip route del default table default 2>/dev/null
 if [ -n "$inet_default" ]; then
-  ip ro add default proto static via ${inet_gw[$inet_default]}
+  ip ro add table default default proto static via ${inet_gw[$inet_default]}
 else
-  ip route add default proto static $multipath 
+  ip route add table default default proto static $multipath
 fi
 ip route flush cache
 echo "done"
