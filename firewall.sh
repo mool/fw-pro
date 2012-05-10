@@ -1,9 +1,12 @@
 #!/bin/bash
 
+config="/etc/firewall.conf"
+
 test "$1" == "debug" && set -x
 test "$1" == "show"  && iptables() { echo iptables "$@"; } && ip() { echo ip "$@"; } 
 
-source firewall.conf
+[ ! -f $config ] && echo "ERROR: File $config doesn't exist" && exit 1
+source $config
 
 echo "Generating routing rules..."
 ip rule flush 2>/dev/null
@@ -95,11 +98,11 @@ echo "done"
 echo -n " * Activating Port Forwarding: "
 for ((i=1;i<=${#inet_gw[@]};i++)); do
   if [[ -n "${inet_redirections[$i]}" ]]; then
-    for i in ${inet_redirections[$i]}; do
-      extport=$(echo $i | awk -F ':' '{ print $1 }')
-      intip=$(echo $i | awk -F ':' '{ print $2 }')
-      intport=$(echo $i | awk -F ':' '{ print $3 }')
-      proto=$(echo $i | awk -F ':' '{ print $4 }')
+    for n in ${inet_redirections[$i]}; do
+      extport=$(echo $n | awk -F ':' '{ print $1 }')
+      intip=$(echo $n | awk -F ':' '{ print $2 }')
+      intport=$(echo $n | awk -F ':' '{ print $3 }')
+      proto=$(echo $n | awk -F ':' '{ print $4 }')
 
       iptables -t nat -A PREROUTING -p $proto -i ${inet_iface[$i]} --dport $extport -j DNAT --to $intip:$intport
     done
