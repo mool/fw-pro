@@ -21,6 +21,8 @@ for ((i=1;i<=${#inet_gw[@]};i++)); do
   fi
 
   echo -n " * Setting link $i ${inet_name[$i]}: "
+  tc qdisc del dev ${inet_iface[$i]} root 2>/dev/null
+  tc qdisc add dev ${inet_iface[$i]} root tbf rate ${inet_upload[$i]}kbit latency 50ms burst 1540
   ip route flush table enlace$i 2>/dev/null
   ip route add default via ${inet_gw[$i]} dev ${inet_iface[$i]} proto static table enlace$i
   ip rule add from ${inet_ip[$i]} prio 10$i table enlace$i
