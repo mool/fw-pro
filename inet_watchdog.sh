@@ -76,4 +76,5 @@ if [[ "$route" != "$route_new" ]]; then
   ip route chg table default default proto static $multipath
   ip route flush cache
   echo "$(date) Changing default gateway to: $multipath" >> $log
+  [ -n "$mail" ] && echo -e "Subject: Changing default gateway in $(hostname -f)\n\nChanging default gateway to: $multipath" | /usr/sbin/sendmail $mail
 fi
