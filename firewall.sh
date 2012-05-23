@@ -3,7 +3,7 @@
 config="/etc/firewall.conf"
 
 test "$1" == "debug" && set -x
-test "$1" == "show"  && iptables() { echo iptables "$@"; } && ip() { echo ip "$@"; } 
+test "$1" == "show"  && iptables() { echo iptables "$@"; } && ip() { echo ip "$@"; } && tc() { echo tc "$@"; }  
 
 [ ! -f $config ] && echo "ERROR: File $config doesn't exist" && exit 1
 source $config
