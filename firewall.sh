@@ -82,7 +82,7 @@ for ((i=1;i<=${#inet_gw[@]};i++)); do
     iptables -A INPUT -i ${inet_iface[$i]} -p tcp --dport $port -j ACCEPT
   done
   for port in ${inet_udp_ports[$i]}; do
-    iptables -A INPUT -i ${inet_iface[$i]} -p tcp --dport $port -j ACCEPT
+    iptables -A INPUT -i ${inet_iface[$i]} -p udp --dport $port -j ACCEPT
   done
 done
 iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
