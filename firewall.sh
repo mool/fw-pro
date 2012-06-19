@@ -59,21 +59,28 @@ iptables -t mangle -X
 echo "done"
 
 echo -n " * Generating packet marking rules: "
+iptables -t mangle -N PROVIDERS
+iptables -t mangle -N FORCE_PROVIDER
+iptables -t mangle -A PREROUTING -J FORCE_PROVIDER
+iptables -t mangle -A OUTPUT -J FORCE_PROVIDER
 iptables -t mangle -A PREROUTING -j CONNMARK --restore-mark
-iptables -t mangle -N ENLACES
-iptables -t mangle -A FORWARD -m mark --mark 0x0 -j ENLACES
+iptables -t mangle -A FORWARD -m mark --mark 0x0 -j PROVIDERS
 iptables -t mangle -A FORWARD -j MARK --set-mark 0x0
 
 for ((i=1;i<=${#lan_iface[@]};i++)); do
-  iptables -t mangle -A ENLACES -o ${lan_iface[$i]} -j RETURN
+  iptables -t mangle -A PROVIDERS -o ${lan_iface[$i]} -j RETURN
 done
 
 for ((i=1;i<=${#inet_gw[@]};i++)); do
-  iptables -t mangle -A ENLACES -o ${inet_iface[$i]} -j MARK --set-mark 0x$i
-  iptables -t mangle -A ENLACES -i ${inet_iface[$i]} -j MARK --set-mark 0x$i
+  iptables -t mangle -A PROVIDERS -o ${inet_iface[$i]} -j MARK --set-mark 0x$i
+  iptables -t mangle -A PROVIDERS -i ${inet_iface[$i]} -j MARK --set-mark 0x$i
+  for f in ${inet_force_dest[$i]}; do
+    iptables -t mangle -A FORCE_PROVIDER -d $f -j MARK --set-mark 0x$i
+    iptables -t mangle -A FORCE_PROVIDER -d $f -j CONNMARK --save-mark
+  done
 done
 
-iptables -t mangle -A ENLACES -j CONNMARK --save-mark
+iptables -t mangle -A PROVIDERS -j CONNMARK --save-mark
 echo "done"
 
 echo -n " * Setting Firewall: "
