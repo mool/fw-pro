@@ -61,11 +61,12 @@ echo "done"
 echo -n " * Generating packet marking rules: "
 iptables -t mangle -N PROVIDERS
 iptables -t mangle -N FORCE_PROVIDER
-iptables -t mangle -A PREROUTING -J FORCE_PROVIDER
-iptables -t mangle -A OUTPUT -J FORCE_PROVIDER
+iptables -t mangle -A OUTPUT -j FORCE_PROVIDER
+iptables -t mangle -A OUTPUT -j CONNMARK --restore-mark
+iptables -t mangle -A PREROUTING -j FORCE_PROVIDER
 iptables -t mangle -A PREROUTING -j CONNMARK --restore-mark
-iptables -t mangle -A FORWARD -m mark --mark 0x0 -j PROVIDERS
-iptables -t mangle -A FORWARD -j MARK --set-mark 0x0
+iptables -t mangle -A PREROUTING -m mark --mark 0x0 -j PROVIDERS
+iptables -t mangle -A PREROUTING -j MARK --set-mark 0x0
 
 for ((i=1;i<=${#lan_iface[@]};i++)); do
   iptables -t mangle -A PROVIDERS -o ${lan_iface[$i]} -j RETURN
